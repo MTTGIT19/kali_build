@@ -16,12 +16,13 @@
         - /opt/network
         - /opt/reverse
         - /opt/cloud
+        - /opt/rf-sdr
         - ~/Documents/tools
         - ~/Documents/scripts
         - ~/Documents/labs
         - ~/Documents/wordlists
         - ~/Documents/screenshots
-      tags: always  # Run setup steps in all cases
+      tags: always
 
     - name: Export directories for easy access
       shell: |
@@ -30,7 +31,7 @@
         echo 'labs=~/Documents/labs' >> ~/.bashrc
         echo 'wordlists=~/Documents/wordlists' >> ~/.bashrc
       tags: always
-      
+
     # Add Kali repository and APT key
     - name: Add Kali Linux APT key
       apt_key:
@@ -48,6 +49,7 @@
       apt:
         update_cache: yes
       tags: always
+
     # General Tools
     - name: Install general tools and compilers
       apt:
@@ -150,7 +152,6 @@
         - { repo: 'https://github.com/carlospolop/PEASS-ng.git', name: 'PEASS-ng' }
         - { repo: 'https://github.com/ciscoCXSecurity/enum4linux.git', name: 'enum4linux' }
         - { repo: 'https://github.com/sliver.sh/install', name: 'sliver' }
-        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
       tags: post
 
     # Network Tools
@@ -161,15 +162,11 @@
       loop:
         - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_agent_0.6.2_linux_amd64.tar.gz' }
         - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz' }
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
         - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_linux_amd64.gz', filename: 'chisel_1.10.0_linux_amd64.gz' }
         - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_amd64.gz', filename: 'chisel_1.10.0_windows_amd64.gz' }
-        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_386.gz', filename: 'chisel_1.10.0_windows_386.gz' }
         - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-client_linux', filename: 'sliver-client_linux' }
         - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', filename: 'sliver-server_linux' }
         - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64', filename: 'pspy64' }
-        - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32', filename: 'pspy32' }
       tags: network
 
     - name: Install network tools via apt
@@ -241,3 +238,37 @@
         - { repo: 'https://github.com/RhinoSecurityLabs/pacu.git', name: 'pacu' }
         - { repo: 'https://github.com/dagrz/aws_pwn.git', name: 'aws_pwn' }
       tags: cloud
+
+    # RF/SDR Tools
+    - name: Install RF/SDR tools via apt
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - gnuradio
+        - hackrf
+        - rtl-sdr
+        - gqrx-sdr
+        - urh
+        - bladerf
+        - osmosdr
+        - airspy
+        - soapysdr-tools
+        - kalibrate-rtl
+        - qspectrumanalyzer
+        - inspectrum
+        - kalibrate-hackrf
+        - srslte
+      tags: rf-sdr
+
+    - name: Clone SDRangel repository
+      git:
+        repo: "https://github.com/f4exb/sdrangel.git"
+        dest: "/opt/rf-sdr/sdrangel"
+      tags: rf-sdr
+
+    - name: Clone gr-satellites repository
+      git:
+        repo: "https://github.com/daniestevez/gr-satellites.git"
+        dest: "/opt/rf-sdr/gr-satellites"
+      tags: rf-sdr
