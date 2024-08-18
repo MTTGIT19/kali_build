@@ -13,13 +13,15 @@
         name: "{{ item }}"
         state: present
       loop:
-        - burpsuite  
-        - feroxbuster
-        - docker-ce
-        - gobuster
+        - burpsuite
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
         - python3-pip
         - pipx
-        - impacket
+        - feroxbuster
+        - gobuster
         - code
         
     - name: Clone Git Repos
