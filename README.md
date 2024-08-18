@@ -11,8 +11,13 @@ Tools for fresh Kali install. Automated with ansible.
 sudo ansible-playbook main_tools.yml
 ```
 
+5. (Optional) Run the `shell.config` for a nice Tmux appearance and additional modules. Also includes terminator and a pretty shell config. It's mostly Catppuccin themed.   
+```
+ansible-playbook shell_config.yml
+```
+
 ## 🔨 Tools list
-- Do you really need a list? Look at the `main_tools.yml` sources.
+- Pentesters should look at source code...
 
 ## 📑 Wordlists
 - Statistically likely usernames
