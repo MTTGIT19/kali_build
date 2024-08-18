@@ -1,5 +1,6 @@
 # kali_build
-Tools for fresh Kali install. Automated with ansible. 
+Tools for fresh Kali install. Automated with ansible.   
+❗❗ *For personal/private usage* 
 
 ### Directions  
 1. Install fresh Kali VM [(HERE)](https://www.kali.org/get-kali/#kali-platforms).
@@ -18,3 +19,4 @@ sudo ansible-playbook main_tools.yml
 
 ## 🆕 Requests / Additions  
 If you would like a new tool added. Submit it as a `request` under the **Issues** tab. 
+
