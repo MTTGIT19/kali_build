@@ -1,14 +1,66 @@
 ---
-- name: Clone GitHub Repositories and Download Releases
+- name: Offensive Security Deployment
   hosts: localhost
   become: yes  # Use sudo for this playbook
   tasks:
+
     - name: Ensure git is installed
       apt:
         name: git
         state: present
-        
-    - name: Install additional packages
+
+    # Setup and file structure creation
+    - name: Create a directory structure for organization
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /opt/web
+        - /opt/windows
+        - /opt/wordlists
+        - /opt/PSPY
+        - /opt/network
+        - /opt/reverse
+        - /opt/cloud
+        - /opt/rf-sdr
+      tags: always
+
+    # General Tools
+    - name: Install general tools and compilers
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - golang-go
+        - ruby
+        - gcc
+        - g++
+        - clang
+        - cmake
+        - flameshot
+        - python3-pip
+        - pipx
+        - python3-pwntools
+        - awscli
+        - enum4linux-ng
+        - docker.io
+      tags: general
+
+    # Windows tools
+    - name: Install additional Windows tools via apt
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-impacket
+        - evil-winrm
+        - chisel
+        - bloodhound
+        - chisel
+      tags: windows
+
+    # Web tools
+    - name: Install additional web tools via apt
       apt:
         name: "{{ item }}"
         state: present
@@ -18,44 +70,208 @@
         - ca-certificates
         - curl
         - gnupg-agent
-        - python3-pip
-        - pipx
         - feroxbuster
         - gobuster
-        - code
-        
-    - name: Clone Git Repos
+        - ffuf
+        - wfuzz
+        - gospider
+        - payloadsallthethings
+      tags: web
+
+    # Networking
+    - name: Install network tools via apt
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - inetutils-traceroute
+        - tor
+        - sshuttle
+      tags: network
+      
+    # RF/SDR Tools
+    - name: Install RF/SDR tools via apt
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - kali-tools-sdr
+        - kali-tools-rfid
+        - gnuradio
+        - rtl-sdr
+        - gqrx-sdr
+        - airspy
+        - soapysdr-tools
+        - kalibrate-rtl
+        - inspectrum
+      tags: rf-sdr
+
+    # Reverse Engineering Tools
+    - name: Install reverse engineering tools via apt
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - libssl-dev
+        - libffi-dev
+        - build-essential
+        - ltrace
+        - edb-debugger
+      tags: rev
+    
+    # Windows Tools/Releases to /opt/windows/
+    - name: Clone Windows tools repositories to /opt/windows/
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/windows/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/lgandx/Responder.git', name: 'Responder' }
+        - { repo: 'https://github.com/ropnop/kerbrute.git', name: 'kerbrute' }
+        - { repo: 'https://github.com/dirkjanm/krbrelayx.git', name: 'krbrelayx' }
+        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
+        - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
+        - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
+        - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
+        - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
+      tags: windows
+      ignore_errors: yes
+
+    # Wordlists to /opt/wordlists/
+    - name: Clone wordlist repositories to /opt/wordlists/
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/wordlists/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/swisskyrepo/PayloadsAllTheThings.git', name: 'PayloadsAllTheThings' }
+        - { repo: 'https://github.com/trickest/wordlists.git', name: 'wordlists' }
+        - { repo: 'https://github.com/insidetrust/statistically-likely-usernames.git', name: 'statistically-likely-usernames' }
+      tags: wordlists
+      ignore_errors: yes
+      
+    # C2 Frameworks to /opt/c2_frameworks/
+    - name: Clone c2 frameworks to /opt/c2_frameworks/
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/c2_frameworks/{{ item.name }}"
+      loop:
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-client_linux', name: 'sliver-client_linux' }
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', name: 'sliver-server_linux' }
+      tags: c2
+      ignore_errors: yes
+
+    - name: Ensure sliver.server is executable
+      command: chmod +x /opt/c2_frameworks/sliver-server_linux /opt/c2_frameworks/sliver-client_linux
+      become: yes  # Run as root if needed
+
+    - name: Start the Sliver server
+      shell: ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks  # Directory where sliver-server is located
+      async: 60
+      poll: 0  # Continue without waiting for task to finish
+      register: sliver_server_job
+
+    - name: Wait for Sliver server to start
+      async_status:
+        jid: "{{ sliver_server_job.ansible_job_id }}"
+      register: sliver_server_result
+      until: sliver_server_result.finished
+      retries: 5
+      delay: 2
+
+    - name: Run 'update' command inside Sliver
+      shell: echo 'update' | ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks
+      become: yes  # Run as root if needed
+
+    - name: Install all armory tools
+      expect:
+        command: echo 'armory install all' | ./sliver-server_linux 
+        responses:
+          "Y/n": "Y"
+      args:
+        chdir: /opt/c2_frameworks
+        echo: yes
+      become: yes  # Run as root if needed
+
+    # Pivoting Tools
+    - name: Download pivoting tool release files to /opt/network/
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/network/{{ item.filename }}"
+      loop:
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_agent_0.6.2_linux_amd64.tar.gz' }
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz' }
+        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_linux_amd64.gz', filename: 'chisel_1.10.0_linux_amd64.gz' }
+        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_amd64.gz', filename: 'chisel_1.10.0_windows_amd64.gz' }
+      tags: pivot
+      ignore_errors: yes
+
+    # Rev Eng
+    - name: Clone reverse engineering tools to /opt/reverse/
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/reverse/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/radareorg/radare2.git', name: 'radare2' }
+        - { repo: 'https://github.com/angr/angr.git', name: 'angr' }
+      tags: rev
+      ignore_errors: yes
+
+    # Main
+    - name: Clone general tools to /opt/
       git:
         repo: "{{ item.repo }}"
         dest: "/opt/{{ item.name }}"
       loop:
-        - { repo: 'https://github.com/insidetrust/statistically-likely-usernames.git', name: 'statistically-likely-usernames' }
         - { repo: 'https://github.com/cnotin/SplunkWhisperer2.git', name: 'SplunkWhisperer2' }
-        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
-        - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
-        - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
-        - { repo: 'https://github.com/peass-ng/PEASS-ng.git', name: '{PEASS-ng' }
-        - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
-        - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
+        - { repo: 'https://github.com/carlospolop/PEASS-ng.git', name: 'PEASS-ng' }
+      tags: general
+      ignore_errors: yes
 
-    - name: Download release files
+    # PSPY
+    - name: Clone PsPy to /opt/PSPY/
       get_url:
         url: "{{ item.url }}"
-        dest: "/opt/{{ item.filename }}"
+        dest: "/opt/PSPY/{{ item.filename }}"
       loop:
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_agent_0.6.2_linux_amd64.tar.gz' }
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz' }
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
-        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
-        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_linux_amd64.gz', filename: 'chisel_1.10.0_linux_amd64.gz' }
-        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_amd64.gz', filename: 'chisel_1.10.0_windows_amd64.gz' }
-        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_386.gz', filename: 'chisel_1.10.0_windows_386.gz' }
-        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-client_linux', filename: 'sliver-client_linux' }
-        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', filename: 'sliver-server_linux' }
         - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64', filename: 'pspy64' }
+        - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64s', filename: 'pspy64s' }
         - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32', filename: 'pspy32' }
-        - { url: 'https://github.com/wh0amitz/PetitPotato/releases/download/v1.0.0/PetitPotato.exe', filename: 'PetitPotato.exe' }
-                            
+        - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32s', filename: 'pspy32s' }
+      tags: pspy
+      ignore_errors: yes
+
+    # Cloud
+    - name: Clone cloud tools to /opt/cloud/
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/cloud/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/andresriancho/enumerate-iam.git', name: 'enumerate-iam' }
+        - { repo: 'https://github.com/carnal0wnage/weirdAAL.git', name: 'weirdAAL' }
+        - { repo: 'https://github.com/BishopFox/cloudfox.git', name: 'cloudfox' }
+        - { repo: 'https://github.com/RhinoSecurityLabs/pacu.git', name: 'pacu' }
+        - { repo: 'https://github.com/dagrz/aws_pwn.git', name: 'aws_pwn' }
+      tags: cloud
+      ignore_errors: yes
+
+    # More SDR
+    - name: Clone SDRangel repository
+      git:
+        repo: "https://github.com/f4exb/sdrangel.git"
+        dest: "/opt/rf-sdr/sdrangel"
+      tags: rf-sdr
+      ignore_errors: yes
+    - name: Clone gr-satellites repository
+      git:
+        repo: "https://github.com/daniestevez/gr-satellites.git"
+        dest: "/opt/rf-sdr/gr-satellites"
+      tags: rf-sdr
+      ignore_errors: yes
+
+    # Docker images
     - name: Pull Docker images
       command: docker pull "{{ item }}"
       loop:
