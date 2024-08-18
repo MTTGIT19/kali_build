@@ -30,7 +30,24 @@
         echo 'labs=~/Documents/labs' >> ~/.bashrc
         echo 'wordlists=~/Documents/wordlists' >> ~/.bashrc
       tags: always
+      
+    # Add Kali repository and APT key
+    - name: Add Kali Linux APT key
+      apt_key:
+        url: https://archive.kali.org/archive-key.asc
+        state: present
+      tags: always
 
+    - name: Add Kali Linux repository
+      apt_repository:
+        repo: "deb http://http.kali.org/kali kali-rolling main non-free contrib"
+        state: present
+      tags: always
+
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+      tags: always
     # General Tools
     - name: Install general tools and compilers
       apt:
