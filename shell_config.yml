@@ -1,0 +1,62 @@
+---
+- name: Configure tmux with Catppuccin theme
+  hosts: localhost
+  become: no 
+  tasks:
+
+    - name: Ensure tmux and git are installed
+      apt:
+        name:
+          - tmux
+          - git
+          - terminator
+        state: present
+      become: no  # Ensure this runs without sudo
+
+    - name: Copy tmux configuration file to user's home directory
+      copy:
+        src: tmux.conf  # Path to your local tmux.conf file
+        dest: "{{ ansible_env.HOME }}/.tmux.conf"
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+        mode: '0644'
+      become: no  
+
+    - name: Clone TPM (Tmux Plugin Manager) if not present
+      git:
+        repo: 'https://github.com/tmux-plugins/tpm'
+        dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+        update: no
+      become: no  
+
+    - name: Clone Catppuccin theme repository if not present
+      git:
+        repo: 'https://github.com/catppuccin/tmux.git'
+        dest: "{{ ansible_env.HOME }}/.tmux/plugins/catppuccin"
+        update: no
+      become: no  
+
+    - name: Start tmux session if not running
+      shell: |
+        if ! tmux has-session -t default 2>/dev/null; then
+          tmux new-session -d -s default
+        fi
+      become: no  
+
+    - name: Source tmux configuration
+      shell: "tmux source-file '{{ ansible_env.HOME }}/.tmux.conf'"
+      become: no
+      ignore_errors: yes
+
+    - name: Clone Terminator configuration repository
+      git:
+        repo: 'https://github.com/catppuccin/terminator.git'
+        dest: "{{ ansible_env.HOME }}/.config/terminator"
+        update: no
+      become: no
+
+    - name: Apply Terminator configuration
+      shell: 'terminator -p Catppuccin_mocha'
+      become: no
+      ignore_errors: yes  # This command might fail if Terminator is not running or not properly configured
+
