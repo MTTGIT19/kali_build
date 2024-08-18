@@ -1,0 +1,60 @@
+---
+- name: Clone GitHub Repositories and Download Releases
+  hosts: localhost
+  become: yes  # Use sudo for this playbook
+  tasks:
+    - name: Ensure git is installed
+      apt:
+        name: git
+        state: present
+        
+    - name: Install additional packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - burpsuite  
+        - feroxbuster
+        - docker-ce
+        - gobuster
+        - python3-pip
+        - pipx
+        - impacket
+        - code
+        
+    - name: Clone Git Repos
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/insidetrust/statistically-likely-usernames.git', name: 'statistically-likely-usernames' }
+        - { repo: 'https://github.com/cnotin/SplunkWhisperer2.git', name: 'SplunkWhisperer2' }
+        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
+        - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
+        - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
+        - { repo: 'https://github.com/peass-ng/PEASS-ng.git', name: '{PEASS-ng' }
+        - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
+        - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
+
+    - name: Download release files
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/{{ item.filename }}"
+      loop:
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_agent_0.6.2_linux_amd64.tar.gz' }
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz', filename: 'ligolo-ng_proxy_0.6.2_linux_amd64.tar.gz' }
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
+        - { url: 'https://github.com/nicocha30/ligolo-ng/releases/download/v0.6.2/ligolo-ng_agent_0.6.2_windows_amd64.zip', filename: 'ligolo-ng_agent_0.6.2_windows_amd64.zip' }
+        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_linux_amd64.gz', filename: 'chisel_1.10.0_linux_amd64.gz' }
+        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_amd64.gz', filename: 'chisel_1.10.0_windows_amd64.gz' }
+        - { url: 'https://github.com/jpillora/chisel/releases/download/v1.10.0/chisel_1.10.0_windows_386.gz', filename: 'chisel_1.10.0_windows_386.gz' }
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-client_linux', filename: 'sliver-client_linux' }
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', filename: 'sliver-server_linux' }
+        - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64', filename: 'pspy64' }
+        - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32', filename: 'pspy32' }
+        - { url: 'https://github.com/wh0amitz/PetitPotato/releases/download/v1.0.0/PetitPotato.exe', filename: 'PetitPotato.exe' }
+                            
+    - name: Pull Docker images
+      command: docker pull "{{ item }}"
+      loop:
+        - rustscan/rustscan:latest
