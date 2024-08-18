@@ -7,7 +7,7 @@ Tools for fresh Kali install. Automated with ansible.
 3. Clone this repo.
 4. Change directory and run Playbook.
 ```
-sudo ansible-playbook tools_main.yml
+sudo ansible-playbook main_tools.yml
 ```
 
 ## 🔨 Tools list
