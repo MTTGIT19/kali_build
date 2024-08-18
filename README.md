@@ -22,6 +22,8 @@ ansible-playbook shell_config.yml
 
 ## 📑 Wordlists
 - Statistically likely usernames
+- trickest
+- Payloadallthethings
 
 ## 🆕 Requests / Additions  
 If you would like a new tool added. Submit it as a `request` under the **Issues** tab. 
