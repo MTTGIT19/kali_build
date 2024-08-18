@@ -48,15 +48,24 @@
       become: no
       ignore_errors: yes
 
+    - name: Clone tmux-yank plugin into TPM directory
+      git:
+        repo: 'https://github.com/tmux-plugins/tmux-yank.git'
+        dest: "{{ ansible_env.HOME }}/.tmux/plugins/tmux-yank"
+        update: no
+      become: no  
+
+    - name: Clone tmux-logging plugin into TPM directory
+      git:
+        repo: 'https://github.com/tmux-plugins/tmux-logging.git'
+        dest: "{{ ansible_env.HOME }}/.tmux/plugins/tmux-logging"
+        update: no
+      become: no  
+
     - name: Clone Terminator configuration repository
       git:
         repo: 'https://github.com/catppuccin/terminator.git'
         dest: "{{ ansible_env.HOME }}/.config/terminator"
         update: no
       become: no
-
-    - name: Apply Terminator configuration
-      shell: 'terminator -p Catppuccin_mocha'
-      become: no
-      ignore_errors: yes  # This command might fail if Terminator is not running or not properly configured
 
