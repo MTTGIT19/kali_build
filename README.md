@@ -1,6 +1,6 @@
 # kali_build
-Tools for fresh Kali install. Automated with ansible.   
-❗❗ *For personal/private usage* 
+A custom *automated* Kali install 🚩 All your CTF tools in one place.  
+Designed for a totally fresh Kali install -- for usage at Defcon and the like. Automated with ansible.   
 
 ### Directions  
 1. Install fresh Kali VM [(HERE)](https://www.kali.org/get-kali/#kali-platforms).
