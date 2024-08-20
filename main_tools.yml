@@ -133,6 +133,13 @@
         - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
         - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
         - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
+        - { repo: 'https://github.com/PowerShellMafia/PowerSploit.git', name: 'PowerSploit' }
+        - { repo: 'https://github.com/ParrotSec/mimikatz.git', name: 'Mimikatz' }
+        - { repo: 'https://github.com/sense-of-security/ADRecon.git', name: 'ADRecon' }
+        - { repo: 'https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git', name: 'Ghostpack-CompiledBinaries' }
+        - { repo: 'https://github.com/HarmJ0y/PowerUpSQL.git', name: 'PowerUPSQL' }
+        - { repo: 'https://github.com/AlessandroZ/LaZagne.git', name: 'LaZagne' }
+        - { repo: 'https://github.com/Arvanaghi/SessionGopher.git', name: 'SessionGopher' }
       tags: windows
       ignore_errors: yes
 
@@ -276,3 +283,4 @@
       command: docker pull "{{ item }}"
       loop:
         - rustscan/rustscan:latest
+        - specterops/bloodhound
