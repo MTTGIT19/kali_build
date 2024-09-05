@@ -17,12 +17,14 @@
       loop:
         - /opt/web
         - /opt/windows
+        - /opt/windows/compiled
         - /opt/wordlists
         - /opt/PSPY
         - /opt/network
         - /opt/reverse
         - /opt/cloud
         - /opt/rf-sdr
+        - /opt/c2_frameworks
       tags: always
 
     # General Tools
@@ -57,6 +59,7 @@
         - chisel
         - bloodhound
         - chisel
+        - remmina
       tags: windows
 
     # Web tools
@@ -132,18 +135,34 @@
         - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
         - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
         - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
+        - { repo: 'https://github.com/zcgonvh/EfsPotato.git', name: 'EfsPotato' }
+        - { repo: 'https://github.com/zcgonvh/DCOMPotato.git', name: 'DCOMPotato' }
+        - { repo: 'https://github.com/bugch3ck/SharpEfsPotato.git', name: 'SharpEfsPotato' }
+        - { repo: 'https://github.com/antonioCoco/RoguePotato.git', name: 'RoguePotato'}
         - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
         - { repo: 'https://github.com/PowerShellMafia/PowerSploit.git', name: 'PowerSploit' }
         - { repo: 'https://github.com/ParrotSec/mimikatz.git', name: 'Mimikatz' }
         - { repo: 'https://github.com/sense-of-security/ADRecon.git', name: 'ADRecon' }
-        - { repo: 'https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git', name: 'Ghostpack-CompiledBinaries' }
         - { repo: 'https://github.com/HarmJ0y/PowerUpSQL.git', name: 'PowerUPSQL' }
         - { repo: 'https://github.com/AlessandroZ/LaZagne.git', name: 'LaZagne' }
         - { repo: 'https://github.com/Arvanaghi/SessionGopher.git', name: 'SessionGopher' }
+        - { repo: 'https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits.git', name: 'Dirty Pipe CVE-2022-0847' }
       tags: windows
       ignore_errors: yes
 
-    # Wordlists to /opt/wordlists/
+    # Web Tools to /opt/web
+    - name: Clone Web tools to /opt/web
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/web/{{ item.name }}"
+      loop:
+        - {repo: 'https://github.com/MAWK0235/CVE-2024-24401.git', name: 'CVE-2024-24401-NAGIOS' }
+        - { repo: 'https://github.com/MAWK0235/MinecraftLog4jAutoPwn.git', name: 'MinecraftLog4jAutoPWN'}
+        - { repo: 'https://github.com/vladko312/SSTImap.git', name: 'SSTImap'}
+      tags: web
+      ignore_errors: yes
+
+     # Wordlists to /opt/wordlists/
     - name: Clone wordlist repositories to /opt/wordlists/
       git:
         repo: "{{ item.repo }}"
@@ -165,42 +184,6 @@
         - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', name: 'sliver-server_linux' }
       tags: c2
       ignore_errors: yes
-
-    - name: Ensure sliver.server is executable
-      command: chmod +x /opt/c2_frameworks/sliver-server_linux /opt/c2_frameworks/sliver-client_linux
-      become: yes  # Run as root if needed
-
-    - name: Start the Sliver server
-      shell: ./sliver-server_linux
-      args:
-        chdir: /opt/c2_frameworks  # Directory where sliver-server is located
-      async: 60
-      poll: 0  # Continue without waiting for task to finish
-      register: sliver_server_job
-
-    - name: Wait for Sliver server to start
-      async_status:
-        jid: "{{ sliver_server_job.ansible_job_id }}"
-      register: sliver_server_result
-      until: sliver_server_result.finished
-      retries: 5
-      delay: 2
-
-    - name: Run 'update' command inside Sliver
-      shell: echo 'update' | ./sliver-server_linux
-      args:
-        chdir: /opt/c2_frameworks
-      become: yes  # Run as root if needed
-
-    - name: Install all armory tools
-      expect:
-        command: echo 'armory install all' | ./sliver-server_linux 
-        responses:
-          "Y/n": "Y"
-      args:
-        chdir: /opt/c2_frameworks
-        echo: yes
-      become: yes  # Run as root if needed
 
     # Pivoting Tools
     - name: Download pivoting tool release files to /opt/network/
@@ -234,7 +217,31 @@
       loop:
         - { repo: 'https://github.com/cnotin/SplunkWhisperer2.git', name: 'SplunkWhisperer2' }
         - { repo: 'https://github.com/carlospolop/PEASS-ng.git', name: 'PEASS-ng' }
+        - { repo: 'https://github.com/MAWK0235/LinDistributor.git', name: 'LinDistrubutor.py'}
       tags: general
+      ignore_errors: yes
+
+    # Compiled
+    - name: Clone Windows Compiled tools to /opt/windows/compiled
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/compiled/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/MAWK0235/certify-compiled.git', name: 'certify' }
+        - { repo: 'https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git', name: 'Ghostpack-CompiledBinaries' }
+      tags: windows
+      ignore_errors: yes
+
+    # Compiled Part II
+    - name: Clone Windows Compiled tools to /opt/windows/compiled
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/compiled/{{ item.name }}"
+      loop:
+        - { url: 'https://github.com/antonioCoco/RoguePotato/releases/download/1.0/RoguePotato.zip', name: 'RoguePotato.zip' }
+        - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer32.exe', name: 'PrintSpoofer32.exe' }
+        - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe', name: 'PrintSpoofer64.exe' }
+      tags: windows
       ignore_errors: yes
 
     # PSPY
@@ -284,3 +291,35 @@
       loop:
         - rustscan/rustscan:latest
         - specterops/bloodhound
+
+    # Sliver start/update
+    - name: Ensure sliver.server is executable
+      command: chmod +x /opt/c2_frameworks/sliver-server_linux /opt/c2_frameworks/sliver-client_linux
+      become: yes  # Run as root if needed
+
+    - name: Start the Sliver server
+      shell: ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks  # Directory where sliver-server is located
+      async: 60
+      poll: 0  # Continue without waiting for task to finish
+      register: sliver_server_job
+
+    - name: Wait for Sliver server to start
+      async_status:
+        jid: "{{ sliver_server_job.ansible_job_id }}"
+      register: sliver_server_result
+      until: sliver_server_result.finished
+      retries: 3
+      delay: 2
+
+    - name: Run 'update' command inside Sliver
+      shell: echo 'update' | ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks
+      become: yes  # Run as root if needed
+      register: update_output
+
+    - name: Display update command output
+      debug:
+        msg: "{{ update_output.stdout }}"
