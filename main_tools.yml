@@ -235,7 +235,7 @@
         - { repo: 'https://github.com/Kevin-Robertson/Inveigh.git', name: 'inveigh' }
         - { repo: 'https://github.com/t3l3machus/hoaxshell.git', name: 'hoaxshell' }
         - { repo: 'https://github.com/MichaelGrafnetter/DSInternals.git', name: 'DSinternals' }
-        - { repo: 'https://github.com/TheWover/donut/releases', name: 'donut' }
+        - { repo: 'http://github.com/thewover/donut.git', name: 'donut' }
         - { repo: 'https://github.com/dafthack/DomainPasswordSpray.git', name: 'DomainpasswordSpray' }
         - { repo: 'https://github.com/adrecon/ADRecon.git', name: 'ADrecon' }
       tags: windows
