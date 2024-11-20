@@ -18,12 +18,7 @@ ansible-playbook shell_config.yml
 ```
 
 ## 🔨 Tools list
-- Pentesters should look at source code...
-
-## 📑 Wordlists
-- Statistically likely usernames
-- trickest
-- Payloadallthethings
+- Pentesters should look at source code... (CTRL+F)
 
 ## 🆕 Requests / Additions  
 If you would like a new tool added. Submit it as a `request` under the **Issues** tab. 
