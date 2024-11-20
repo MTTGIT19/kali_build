@@ -42,10 +42,12 @@
         - flameshot
         - python3-pip
         - pipx
+        - python3-fuzzywuzzy
         - python3-pwntools
         - awscli
         - enum4linux-ng
         - docker.io
+        - goshs
       tags: general
 
     # Windows tools
@@ -121,34 +123,6 @@
         - ltrace
         - edb-debugger
       tags: rev
-    
-    # Windows Tools/Releases to /opt/windows/
-    - name: Clone Windows tools repositories to /opt/windows/
-      git:
-        repo: "{{ item.repo }}"
-        dest: "/opt/windows/{{ item.name }}"
-      loop:
-        - { repo: 'https://github.com/lgandx/Responder.git', name: 'Responder' }
-        - { repo: 'https://github.com/ropnop/kerbrute.git', name: 'kerbrute' }
-        - { repo: 'https://github.com/dirkjanm/krbrelayx.git', name: 'krbrelayx' }
-        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
-        - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
-        - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
-        - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
-        - { repo: 'https://github.com/zcgonvh/EfsPotato.git', name: 'EfsPotato' }
-        - { repo: 'https://github.com/zcgonvh/DCOMPotato.git', name: 'DCOMPotato' }
-        - { repo: 'https://github.com/bugch3ck/SharpEfsPotato.git', name: 'SharpEfsPotato' }
-        - { repo: 'https://github.com/antonioCoco/RoguePotato.git', name: 'RoguePotato'}
-        - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
-        - { repo: 'https://github.com/PowerShellMafia/PowerSploit.git', name: 'PowerSploit' }
-        - { repo: 'https://github.com/ParrotSec/mimikatz.git', name: 'Mimikatz' }
-        - { repo: 'https://github.com/sense-of-security/ADRecon.git', name: 'ADRecon' }
-        - { repo: 'https://github.com/HarmJ0y/PowerUpSQL.git', name: 'PowerUPSQL' }
-        - { repo: 'https://github.com/AlessandroZ/LaZagne.git', name: 'LaZagne' }
-        - { repo: 'https://github.com/Arvanaghi/SessionGopher.git', name: 'SessionGopher' }
-        - { repo: 'https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits.git', name: 'Dirty Pipe CVE-2022-0847' }
-      tags: windows
-      ignore_errors: yes
 
     # Web Tools to /opt/web
     - name: Clone Web tools to /opt/web
@@ -157,8 +131,10 @@
         dest: "/opt/web/{{ item.name }}"
       loop:
         - {repo: 'https://github.com/MAWK0235/CVE-2024-24401.git', name: 'CVE-2024-24401-NAGIOS' }
-        - { repo: 'https://github.com/MAWK0235/MinecraftLog4jAutoPwn.git', name: 'MinecraftLog4jAutoPWN'}
-        - { repo: 'https://github.com/vladko312/SSTImap.git', name: 'SSTImap'}
+        - { repo: 'https://github.com/MAWK0235/MinecraftLog4jAutoPwn.git', name: 'MinecraftLog4jAutoPWN' }
+        - { repo: 'https://github.com/vladko312/SSTImap.git', name: 'SSTImap' }
+        - { repo: 'https://github.com/enjoiz/XXEinjector.git', name: 'XXEInjector' }
+        - { repo: 'https://github.com/nickpupp0/LogPoisoner.git', name: 'LogPoisoner' }
       tags: web
       ignore_errors: yes
 
@@ -171,6 +147,7 @@
         - { repo: 'https://github.com/swisskyrepo/PayloadsAllTheThings.git', name: 'PayloadsAllTheThings' }
         - { repo: 'https://github.com/trickest/wordlists.git', name: 'wordlists' }
         - { repo: 'https://github.com/insidetrust/statistically-likely-usernames.git', name: 'statistically-likely-usernames' }
+        - { repo: 'https://github.com/NotSoSecure/password_cracking_rules.git', name: 'OneRuleToRuleThemAll'}
       tags: wordlists
       ignore_errors: yes
       
@@ -218,10 +195,53 @@
         - { repo: 'https://github.com/cnotin/SplunkWhisperer2.git', name: 'SplunkWhisperer2' }
         - { repo: 'https://github.com/carlospolop/PEASS-ng.git', name: 'PEASS-ng' }
         - { repo: 'https://github.com/MAWK0235/LinDistributor.git', name: 'LinDistrubutor.py'}
+        - { repo: 'https://github.com/urbanadventurer/username-anarchy.git', name: 'username-anarchy' }
+        - { repo: 'https://github.com/21y4d/nmapAutomator.git', name: 'nmapAutomator' }
+        - { repo: 'https://github.com/GerbenJavado/LinkFinder.git', name: 'LinkFinder' }
+        - { repo: 'https://github.com/Bashfuscator/Bashfuscator.git', name: 'bashfuscator' }
       tags: general
       ignore_errors: yes
+    
+    # GIT Windows Tools
+    - name: Clone Windows tools repositories to /opt/windows/
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/windows/{{ item.name }}"
+      loop:
+        - { repo: 'https://github.com/lgandx/Responder.git', name: 'Responder' }
+        - { repo: 'https://github.com/ropnop/kerbrute.git', name: 'kerbrute' }
+        - { repo: 'https://github.com/dirkjanm/krbrelayx.git', name: 'krbrelayx' }
+        - { repo: 'https://github.com/andrew-d/static-binaries.git', name: 'static-binaries' }
+        - { repo: 'https://github.com/topotam/PetitPotam.git', name: 'PetitPotam' }
+        - { repo: 'https://github.com/wh0amitz/PetitPotato.git', name: 'PetitPotato' }
+        - { repo: 'https://github.com/k4sth4/Juicy-Potato.git', name: 'Juicy-Potato' }
+        - { repo: 'https://github.com/zcgonvh/EfsPotato.git', name: 'EfsPotato' }
+        - { repo: 'https://github.com/zcgonvh/DCOMPotato.git', name: 'DCOMPotato' }
+        - { repo: 'https://github.com/bugch3ck/SharpEfsPotato.git', name: 'SharpEfsPotato' }
+        - { repo: 'https://github.com/antonioCoco/RoguePotato.git', name: 'RoguePotato'}
+        - { repo: 'https://github.com/Leo4j/Invoke-ADEnum.git', name: 'Invoke-ADEnum' }
+        - { repo: 'https://github.com/PowerShellMafia/PowerSploit.git', name: 'PowerSploit' }
+        - { repo: 'https://github.com/ParrotSec/mimikatz.git', name: 'Mimikatz' }
+        - { repo: 'https://github.com/sense-of-security/ADRecon.git', name: 'ADRecon' }
+        - { repo: 'https://github.com/HarmJ0y/PowerUpSQL.git', name: 'PowerUPSQL' }
+        - { repo: 'https://github.com/AlessandroZ/LaZagne.git', name: 'LaZagne' }
+        - { repo: 'https://github.com/Arvanaghi/SessionGopher.git', name: 'SessionGopher' }
+        - { repo: 'https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits.git', name: 'Dirty Pipe CVE-2022-0847' }
+        - { repo: 'https://github.com/S3cur3Th1sSh1t/PowerSharpPack.git', name: 'PowerSharpPack' }
+        - { repo: 'https://github.com/Ridter/noPac.git', name: 'Nopac' }
+        - {repo: 'https://github.com/dievus/lnkbomb.git', name: 'lnkbomb' }
+        - { repo: 'https://github.com/nidem/kerberoast.git', name: 'kerberoast' }
+        - { repo: 'https://github.com/byt3bl33d3r/ItWasAllADream.git', name: 'itwasalladream_printnightmare'}
+        - { repo: 'https://github.com/Kevin-Robertson/Inveigh.git', name: 'inveigh' }
+        - { repo: 'https://github.com/t3l3machus/hoaxshell.git', name: 'hoaxshell' }
+        - { repo: 'https://github.com/MichaelGrafnetter/DSInternals.git', name: 'DSinternals' }
+        - { repo: 'https://github.com/TheWover/donut/releases', name: 'donut' }
+        - { repo: 'https://github.com/dafthack/DomainPasswordSpray.git', name: 'DomainpasswordSpray' }
+        - { repo: 'https://github.com/adrecon/ADRecon.git', name: 'ADrecon' }
+      tags: windows
+      ignore_errors: yes
 
-    # Compiled
+    # Windows Compiled
     - name: Clone Windows Compiled tools to /opt/windows/compiled
       git:
         repo: "{{ item.repo }}"
@@ -229,10 +249,11 @@
       loop:
         - { repo: 'https://github.com/MAWK0235/certify-compiled.git', name: 'certify' }
         - { repo: 'https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git', name: 'Ghostpack-CompiledBinaries' }
+        - { repo: 'https://github.com/samratashok/nishang.git', name: 'Nishang_powershell' }
       tags: windows
       ignore_errors: yes
 
-    # Compiled Part II
+    # Windows Compiled Part II
     - name: Clone Windows Compiled tools to /opt/windows/compiled
       get_url:
         url: "{{ item.url }}"
@@ -241,7 +262,14 @@
         - { url: 'https://github.com/antonioCoco/RoguePotato/releases/download/1.0/RoguePotato.zip', name: 'RoguePotato.zip' }
         - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer32.exe', name: 'PrintSpoofer32.exe' }
         - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe', name: 'PrintSpoofer64.exe' }
-      tags: windows
+        - { url: 'https://github.com/frohoff/ysoserial/releases/download/v0.0.6/ysoserial-all.jar', name: 'ysoserial.jar'}
+        - { url: 'https://github.com/BishopFox/ysoserial-bf/releases/download/2023-12-19-01/ysoserial-0.0.6-SNAPSHOT-all.jar', name: 'ysoserial-0.0.6-SNAPSHOT-all.jar' }
+        - { url: 'https://github.com/SnaffCon/Snaffler/releases/download/1.0.184/Snaffler.exe', name: 'snaffler.exe' }
+        - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer32.exe', name: 'Printspoofer32.exe' }
+        - { url: 'https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe', name: 'Printspoofer64.exe' }
+        - { url: 'https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64', name: 'kebrute_linux_amd64'}
+        - { url: 'https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_windows_amd64.exe', name: 'kerbrute_windows_amd64.exe' }
+      tags: windows 
       ignore_errors: yes
 
     # PSPY
@@ -268,7 +296,19 @@
         - { repo: 'https://github.com/BishopFox/cloudfox.git', name: 'cloudfox' }
         - { repo: 'https://github.com/RhinoSecurityLabs/pacu.git', name: 'pacu' }
         - { repo: 'https://github.com/dagrz/aws_pwn.git', name: 'aws_pwn' }
+        - { repo: 'https://github.com/nccgroup/ScoutSuite.git', name: 'scoutsuite' }
+        - { repo: 'https://github.com/NetSPI/MicroBurst.git', name: 'MicroBurst' }
       tags: cloud
+      ignore_errors: yes
+
+    # Cloud Part II
+    - name: Get cloud tools to /opt/cloud/
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/cloud/{{ item.name }}"
+      loop:
+        - { url: 'https://github.com/BloodHoundAD/AzureHound/releases/download/v2.2.1/azurehound-darwin-amd64.zip', name: 'azurehound' }
+      tags: cloud 
       ignore_errors: yes
 
     # More SDR
@@ -291,6 +331,7 @@
       loop:
         - rustscan/rustscan:latest
         - specterops/bloodhound
+        - mpepping/cyberchef
 
     # Sliver start/update
     - name: Ensure sliver.server is executable
@@ -323,3 +364,4 @@
     - name: Display update command output
       debug:
         msg: "{{ update_output.stdout }}"
+
