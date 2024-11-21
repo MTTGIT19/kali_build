@@ -1,0 +1,60 @@
+---
+- name: Gathering all c2 frameworks
+  hosts: localhost
+  become: yes  # Use sudo for this playbook
+  tasks:
+  
+    # C2 Frameworks to /opt/c2_frameworks/
+    - name: Clone c2 frameworks to /opt/c2_frameworks/
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/opt/c2_frameworks/{{ item.name }}"
+      loop:
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-client_linux', name: 'sliver-client_linux' }
+        - { url: 'https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux', name: 'sliver-server_linux' }
+      tags: c2
+      ignore_errors: yes
+
+    - name: Grabbing additional c2 frameworks via git
+      git:
+        repo: "{{ item.repo }}"
+        dest: "/opt/wordlists/{{ item.name }}"
+      loop:
+        - { repo: '  https://github.com/HavocFramework/Havoc.git', name: 'havoc' }
+        - { repo: 'https://github.com/trickest/wordlists.git', name: 'wordlists' }
+        - { repo: 'https://github.com/insidetrust/statistically-likely-usernames.git', name: 'statistically-likely-usernames' }
+        - { repo: 'https://github.com/NotSoSecure/password_cracking_rules.git', name: 'OneRuleToRuleThemAll'}
+      tags: wordlists
+      ignore_errors: yes
+
+    # Sliver start/update
+    - name: Ensure sliver.server is executable
+      command: chmod +x /opt/c2_frameworks/sliver-server_linux /opt/c2_frameworks/sliver-client_linux
+      become: yes  # Run as root if needed
+
+    - name: Start the Sliver server
+      shell: ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks  # Directory where sliver-server is located
+      async: 60
+      poll: 0  # Continue without waiting for task to finish
+      register: sliver_server_job
+
+    - name: Wait for Sliver server to start
+      async_status:
+        jid: "{{ sliver_server_job.ansible_job_id }}"
+      register: sliver_server_result
+      until: sliver_server_result.finished
+      retries: 3
+      delay: 2
+
+    - name: Run 'update' command inside Sliver
+      shell: echo 'update' | ./sliver-server_linux
+      args:
+        chdir: /opt/c2_frameworks
+      become: yes  # Run as root if needed
+      register: update_output
+
+    - name: Display update command output
+      debug:
+        msg: "{{ update_output.stdout }}"
