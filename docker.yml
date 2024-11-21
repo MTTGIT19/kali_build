@@ -1,0 +1,12 @@
+---
+- name: Gathering all Docker files
+  hosts: localhost
+  become: yes  # Use sudo for this playbook
+  tasks:
+
+    - name: Pull Docker images
+      command: docker pull "{{ item }}"
+      loop:
+        - rustscan/rustscan:latest
+        - specterops/bloodhound
+        - mpepping/cyberchef
