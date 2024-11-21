@@ -1,0 +1,17 @@
+---
+- name: Gathering all Linux tools
+  hosts: localhost
+  become: yes  # Use sudo for this playbook
+  tasks:
+
+  - name: Clone PsPy to /opt/linux/
+    get_url:
+      url: "{{ item.url }}"
+      dest: "/opt/linux/{{ item.filename }}"
+    loop:
+      - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64', filename: 'pspy64' }
+      - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64s', filename: 'pspy64s' }
+      - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32', filename: 'pspy32' }
+      - { url: 'https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32s', filename: 'pspy32s' }
+    tags: network
+    ignore_errors: yes
